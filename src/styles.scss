@@ -1,1 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.shadow-outline {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}

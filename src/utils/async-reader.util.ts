@@ -1,0 +1,35 @@
+export function readAsImage(src: any) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+
+    if (src instanceof Blob) {
+      const url = window.URL.createObjectURL(src);
+
+      img.src = url;
+    } else {
+      img.src = src;
+    }
+  });
+}
+
+export function readAsDataURL(file: any) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+export async function readAsPDF(file: any) {
+  const _window = window as any;
+
+  const blob = new Blob([file]);
+  const url = window.URL.createObjectURL(blob);
+
+  return _window.pdfjsLib.getDocument(url).promise;
+}

@@ -1,0 +1,13 @@
+:host {
+  .operation {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .resize-border {
+    @apply absolute border-dashed border-gray-600;
+  }
+
+  .resize-corner {
+    @apply absolute w-10 h-10 bg-blue-300 rounded-full;
+  }
+}
