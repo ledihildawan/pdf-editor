@@ -5,6 +5,14 @@ import {
   readAsPDF,
 } from 'src/utils/async-reader.util';
 import { ggID } from 'src/utils/helper.util';
+import { save } from 'src/utils/pdf.util';
+import { ajax } from 'rxjs/ajax';
+import { forkJoin } from 'rxjs';
+
+const endpointURL = 'http://192.168.1.10:8080/nuxeo';
+const headerOptions = {
+  Authorization: `Basic ${btoa('Administrator:Administrator')}`,
+};
 
 @Component({
   selector: 'app-root',
@@ -24,6 +32,7 @@ export class AppComponent implements OnInit {
   public focusId = null;
   public selectedPageIndex = -1;
   public saving = false;
+  public batchId: string = '';
   public addingDrawing = false;
 
   constructor() {}
@@ -84,7 +93,6 @@ export class AppComponent implements OnInit {
   }
 
   public updateObject(objectId: number, payload: any): void {
-    console.log(payload);
     this.allObjects = this.allObjects.map((objects, pIndex) =>
       pIndex == this.selectedPageIndex
         ? objects.map((object: any) =>
@@ -169,6 +177,65 @@ export class AppComponent implements OnInit {
     event.target.value = null;
   }
 
+  public async onSavePDF(): Promise<any> {
+    if (!this.pdfFile || this.saving || !this.pages.length) {
+      return;
+    }
+
+    this.saving = true;
+
+    try {
+      const res: number[] = await save(
+        this.pdfFile,
+        this.allObjects,
+        this.pdfName
+      );
+
+      console.log(btoa(String.fromCharCode(...new Uint8Array(res))));
+
+      const test = forkJoin({
+        uploadDocument: ajax({
+          method: 'POST',
+          url: `${endpointURL}/api/v1/upload/${this.batchId}/0`,
+          headers: {
+            ...headerOptions,
+            Accept: 'application/octet-stream',
+            'Content-Type': 'application/octet-stream',
+          },
+          body: res,
+        }),
+        saveDocument: ajax({
+          method: 'PUT',
+          url: `${endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d`,
+          headers: {
+            ...headerOptions,
+            'X-NXproperties': '*',
+          },
+          body: {
+            'entity-type': 'document',
+            repository: 'default',
+            properties: {
+              'file:content': {
+                'upload-batch': this.batchId,
+                'upload-fileId': '0',
+              },
+            },
+          },
+        }),
+      });
+
+      test.subscribe({
+        next: (val) => {
+          console.log(val);
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    } finally {
+      this.saving = false;
+    }
+  }
+
   public getStyleObjects(idx: number): object {
     return {
       'touch-action': 'none',
@@ -177,15 +244,42 @@ export class AppComponent implements OnInit {
   }
 
   public async ngOnInit(): Promise<void> {
-    try {
-      const res = await fetch('/assets/documents/c4611_sample_explain.pdf');
-      const pdfBlob = await res.blob();
+    const res = forkJoin({
+      batchId: ajax.post(
+        `${endpointURL}/site/api/v1/upload`,
+        null,
+        headerOptions
+      ),
+      documentInfo: ajax.get(
+        `${endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d`,
+        headerOptions
+      ),
+      documentFile: ajax({
+        url: `${endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
+        // url: `http://localhost:4200/assets/documents/sample.pdf`,
+        headers: headerOptions,
+        responseType: 'blob',
+      }),
+    });
 
-      await this.addPDF(pdfBlob);
+    res.subscribe({
+      next: async (value) => {
+        const data: {
+          batchId: string;
+          documentInfo: any;
+          documentFile: any;
+        } = {
+          batchId: (value.batchId.response as { batchId: string }).batchId,
+          documentInfo: value.documentInfo.response,
+          documentFile: value.documentFile.response,
+        };
 
-      this.selectedPageIndex = 0;
-    } catch (e) {
-      console.log(e);
-    }
+        this.batchId = data.batchId;
+
+        await this.addPDF(data.documentFile);
+
+        this.selectedPageIndex = 0;
+      },
+    });
   }
 }

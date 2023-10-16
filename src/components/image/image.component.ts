@@ -8,6 +8,7 @@ import {
   OnInit,
   AfterViewInit,
   OnChanges,
+  DoCheck,
 } from '@angular/core';
 
 @Component({
@@ -15,7 +16,7 @@ import {
   styleUrls: ['./image.component.scss'],
   templateUrl: './image.component.html',
 })
-export class Image implements OnInit, OnChanges, AfterViewInit {
+export class Image implements OnInit, OnChanges, AfterViewInit, DoCheck {
   @Input() x: any;
   @Input() y: any;
   @Input() file: any;
@@ -37,7 +38,7 @@ export class Image implements OnInit, OnChanges, AfterViewInit {
   public dx: number = 0;
   public dy: number = 0;
   public operation: string = '';
-  public direction: string = '';
+  public directions: any[] = [];
 
   public render(): void {
     const limit = 500;
@@ -77,21 +78,21 @@ export class Image implements OnInit, OnChanges, AfterViewInit {
       this.dx = _dx;
       this.dy = _dy;
     } else if (this.operation === 'scale') {
-      if (this.direction.includes('left')) {
+      if (this.directions.includes('left')) {
         this.dx = _dx;
         this.dw = -_dx;
       }
 
-      if (this.direction.includes('top')) {
+      if (this.directions.includes('top')) {
         this.dy = _dy;
         this.dh = -_dy;
       }
 
-      if (this.direction.includes('right')) {
+      if (this.directions.includes('right')) {
         this.dw = _dx;
       }
 
-      if (this.direction.includes('bottom')) {
+      if (this.directions.includes('bottom')) {
         this.dh = _dy;
       }
     }
@@ -118,7 +119,7 @@ export class Image implements OnInit, OnChanges, AfterViewInit {
       this.dy = 0;
       this.dw = 0;
       this.dh = 0;
-      this.direction = '';
+      this.directions = [];
     }
 
     this.operation = '';
@@ -133,7 +134,7 @@ export class Image implements OnInit, OnChanges, AfterViewInit {
     }
 
     this.operation = 'scale';
-    this.direction = event.target.dataset.direction;
+    this.directions = event.target.dataset.direction.split('-');
   }
 
   public onDelete(): void {
@@ -158,6 +159,8 @@ export class Image implements OnInit, OnChanges, AfterViewInit {
   public ngOnInit(): void {}
 
   public ngOnChanges(): void {}
+
+  public ngDoCheck(): void {}
 
   public ngAfterViewInit(): void {
     this.render();
