@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import {
   readAsDataURL,
   readAsImage,
@@ -34,7 +34,10 @@ export class AppComponent implements OnInit {
   public saving = false;
   public addingDrawing = false;
 
-  constructor(private documentService: DocumentService) {}
+  constructor(
+    private documentService: DocumentService,
+    private renderer: Renderer2
+  ) {}
 
   public async addPDF(file: any): Promise<any> {
     try {
@@ -203,19 +206,37 @@ export class AppComponent implements OnInit {
   }
 
   public async ngOnInit(): Promise<void> {
-    const res = ajax({
-      url: `${endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
-      // url: `http://localhost:4200/assets/documents/sample.pdf`,
-      headers: headerOptions,
-      responseType: 'blob',
+    this.documentService.getDocumentFile().subscribe((pdfBlob) => {
+      this.addPDF(pdfBlob);
+
+      this.selectedPageIndex = 0;
     });
 
-    res.subscribe({
-      next: async (value) => {
-        await this.addPDF(value.response);
-
-        this.selectedPageIndex = 0;
-      },
+    this.renderer.listen(window, 'dragenter', (event) => {
+      event.preventDefault();
     });
+    this.renderer.listen(window, 'dragover', (event) => {
+      event.preventDefault();
+    });
+    this.renderer.listen(window, 'drop', (event) => {
+      this.onUploadPDF(event);
+    });
+  }
+
+  public showImageSignature: boolean = true;
+
+  public imageSignature: any = {
+    height: 600,
+    width: 600,
+  };
+
+  public onUpdateImageSignature(event: any): void {
+    const test = Array.from(new Set(Object.values(event)))[0];
+
+    if (!!test) return;
+
+    this.imageSignature = {
+      ...event,
+    };
   }
 }

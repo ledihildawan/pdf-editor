@@ -20,6 +20,16 @@ export class DocumentService {
 
   constructor(private httpClient: HttpClient) {}
 
+  public getDocumentFile(): Observable<any> {
+    return this.httpClient.get(
+      `${this.endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
+      {
+        headers: this.headers,
+        responseType: 'blob',
+      }
+    );
+  }
+
   public getBatchId(): Observable<string> {
     const url = `${this.endpointURL}/site/api/v1/upload`;
     const options = { headers: this.headers };
