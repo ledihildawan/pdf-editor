@@ -8,6 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ImageModule } from 'src/components/image/image.module';
 import { DrawingCanvasModule } from 'src/components/drawing-canvas/drawing-canvas.module';
 import { DrawingModule } from 'src/components/drawing/drawing.module';
+import { DirectiveModule } from 'src/directives/directive.module';
 
 @NgModule({
   exports: [],
@@ -18,6 +19,7 @@ import { DrawingModule } from 'src/components/drawing/drawing.module';
     BrowserModule,
     DrawingModule,
     PDFPageModule,
+    DirectiveModule,
     HttpClientModule,
     DrawingCanvasModule,
   ],

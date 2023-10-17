@@ -7,7 +7,7 @@ import {
 import { ggID } from 'src/utils/helper.util';
 import { save } from 'src/utils/pdf.util';
 import { ajax } from 'rxjs/ajax';
-import { forkJoin } from 'rxjs';
+import { DocumentService } from 'src/services/document.service';
 
 const endpointURL = 'http://192.168.1.10:8080/nuxeo';
 const headerOptions = {
@@ -32,10 +32,9 @@ export class AppComponent implements OnInit {
   public focusId = null;
   public selectedPageIndex = -1;
   public saving = false;
-  public batchId: string = '';
   public addingDrawing = false;
 
-  constructor() {}
+  constructor(private documentService: DocumentService) {}
 
   public async addPDF(file: any): Promise<any> {
     try {
@@ -109,6 +108,7 @@ export class AppComponent implements OnInit {
   }
 
   public onMeasure(scale: any, idx: number) {
+    console.log(scale);
     this.pagesScale[idx] = scale;
   }
 
@@ -185,50 +185,9 @@ export class AppComponent implements OnInit {
     this.saving = true;
 
     try {
-      const res: number[] = await save(
-        this.pdfFile,
-        this.allObjects,
-        this.pdfName
-      );
+      const data: any = await save(this.pdfFile, this.allObjects, this.pdfName);
 
-      console.log(btoa(String.fromCharCode(...new Uint8Array(res))));
-
-      const test = forkJoin({
-        uploadDocument: ajax({
-          method: 'POST',
-          url: `${endpointURL}/api/v1/upload/${this.batchId}/0`,
-          headers: {
-            ...headerOptions,
-            Accept: 'application/octet-stream',
-            'Content-Type': 'application/octet-stream',
-          },
-          body: res,
-        }),
-        saveDocument: ajax({
-          method: 'PUT',
-          url: `${endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d`,
-          headers: {
-            ...headerOptions,
-            'X-NXproperties': '*',
-          },
-          body: {
-            'entity-type': 'document',
-            repository: 'default',
-            properties: {
-              'file:content': {
-                'upload-batch': this.batchId,
-                'upload-fileId': '0',
-              },
-            },
-          },
-        }),
-      });
-
-      test.subscribe({
-        next: (val) => {
-          console.log(val);
-        },
-      });
+      this.documentService.completeDocumentProcess(data).subscribe();
     } catch (e) {
       console.log(e);
     } finally {
@@ -244,39 +203,16 @@ export class AppComponent implements OnInit {
   }
 
   public async ngOnInit(): Promise<void> {
-    const res = forkJoin({
-      batchId: ajax.post(
-        `${endpointURL}/site/api/v1/upload`,
-        null,
-        headerOptions
-      ),
-      documentInfo: ajax.get(
-        `${endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d`,
-        headerOptions
-      ),
-      documentFile: ajax({
-        url: `${endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
-        // url: `http://localhost:4200/assets/documents/sample.pdf`,
-        headers: headerOptions,
-        responseType: 'blob',
-      }),
+    const res = ajax({
+      url: `${endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
+      // url: `http://localhost:4200/assets/documents/sample.pdf`,
+      headers: headerOptions,
+      responseType: 'blob',
     });
 
     res.subscribe({
       next: async (value) => {
-        const data: {
-          batchId: string;
-          documentInfo: any;
-          documentFile: any;
-        } = {
-          batchId: (value.batchId.response as { batchId: string }).batchId,
-          documentInfo: value.documentInfo.response,
-          documentFile: value.documentFile.response,
-        };
-
-        this.batchId = data.batchId;
-
-        await this.addPDF(data.documentFile);
+        await this.addPDF(value.response);
 
         this.selectedPageIndex = 0;
       },

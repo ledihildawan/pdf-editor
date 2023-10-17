@@ -4,16 +4,18 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild,
+  Renderer2,
 } from '@angular/core';
 
 @Component({
   selector: 'pdf-page',
   templateUrl: './pdf-page.component.html',
 })
-export class PDFPage implements OnInit, AfterViewInit {
+export class PDFPage implements OnInit, AfterViewInit, OnDestroy {
   @Input() page!: any;
   @Input() width!: number;
   @Input() height!: number;
@@ -24,6 +26,9 @@ export class PDFPage implements OnInit, AfterViewInit {
 
   public mounted: any;
   public clientWidth: any;
+  public listenerOnResize: any;
+
+  constructor(private renderer: Renderer2) {}
 
   public async render(): Promise<void> {
     const _page: any = await this.page;
@@ -36,7 +41,7 @@ export class PDFPage implements OnInit, AfterViewInit {
 
     await _page.render({ canvasContext, viewport }).promise;
 
-    window.addEventListener('resize', this.onMeasure);
+    this.renderer.listen(window, 'resize', () => this.onMeasure());
   }
 
   public onMeasure(): void {
@@ -47,5 +52,9 @@ export class PDFPage implements OnInit, AfterViewInit {
 
   public ngAfterViewInit(): void {
     this.render();
+  }
+
+  public ngOnDestroy(): void {
+    this.listenerOnResize();
   }
 }

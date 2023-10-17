@@ -102,8 +102,6 @@ export async function save(pdfFile: any, objects: any, name: any) {
   try {
     const pdfBytes = await pdfDoc.save();
 
-    console.log(pdfBytes);
-
     download(pdfBytes, name, 'application/pdf');
 
     return pdfBytes;
