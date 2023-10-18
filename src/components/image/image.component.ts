@@ -1,3 +1,4 @@
+import { WrapperStyles } from 'src/interfaces';
 import {
   Input,
   Output,
@@ -7,31 +8,34 @@ import {
   EventEmitter,
   OnInit,
   AfterViewInit,
-  OnChanges,
-  DoCheck,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 @Component({
   selector: 'image',
   styleUrls: ['./image.component.scss'],
   templateUrl: './image.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Image implements OnInit, OnChanges, AfterViewInit, DoCheck {
-  @Input() x: any;
-  @Input() y: any;
+export class Image implements OnInit, AfterViewInit {
+  @Input() x!: number;
+  @Input() y!: number;
+  @Input() width!: number;
+  @Input() height!: number;
+
   @Input() file: any;
-  @Input() width: any;
-  @Input() height: any;
   @Input() payload: any;
-  @Input() pageScale = 1;
+
+  @Input() pageScale: number = 1;
 
   @Output() delete: EventEmitter<any> = new EventEmitter<any>();
   @Output() update: EventEmitter<object> = new EventEmitter<object>();
 
   @ViewChild('imageCanvas') canvas!: ElementRef<HTMLCanvasElement>;
 
-  public startX: any;
-  public startY: any;
+  public startX!: number;
+  public startY!: number;
 
   public dh: number = 0;
   public dw: number = 0;
@@ -39,6 +43,16 @@ export class Image implements OnInit, OnChanges, AfterViewInit, DoCheck {
   public dy: number = 0;
   public operation: string = '';
   public directions: any[] = [];
+
+  public get wrapperStyles(): WrapperStyles {
+    return {
+      width: `${this.width + this.dw}px`,
+      height: `${this.height + this.dh}px`,
+      transform: `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`,
+    };
+  }
+
+  constructor(private _changeDetectionRef: ChangeDetectorRef) {}
 
   public render(): void {
     const limit = 500;
@@ -57,6 +71,9 @@ export class Image implements OnInit, OnChanges, AfterViewInit, DoCheck {
     if (this.height > limit) {
       scale = Math.min(scale, limit / this.height);
     }
+
+    this.width = this.width * scale;
+    this.height = this.height * scale;
 
     // this.update.emit({
     //   width: this.width * scale,
@@ -100,20 +117,26 @@ export class Image implements OnInit, OnChanges, AfterViewInit, DoCheck {
 
   public handlePanEnd(): void {
     if (this.operation === 'move') {
-      this.update.emit({
-        x: this.x + this.dx,
-        y: this.y + this.dy,
-      });
+      // this.update.emit({
+      //   x: this.x + this.dx,
+      //   y: this.y + this.dy,
+      // });
+      this.x = this.x + this.dx;
+      this.y = this.y + this.dy;
 
       this.dx = 0;
       this.dy = 0;
     } else if (this.operation === 'scale') {
-      this.update.emit({
-        x: this.x + this.dx,
-        y: this.y + this.dy,
-        width: this.width + this.dw,
-        height: this.height + this.dh,
-      });
+      // this.update.emit({
+      //   x: this.x + this.dx,
+      //   y: this.y + this.dy,
+      //   width: this.width + this.dw,
+      //   height: this.height + this.dh,
+      // });
+      this.x = this.x + this.dx;
+      this.y = this.y + this.dy;
+      this.width = this.width + this.dw;
+      this.height = this.height + this.dh;
 
       this.dx = 0;
       this.dy = 0;
@@ -141,28 +164,11 @@ export class Image implements OnInit, OnChanges, AfterViewInit, DoCheck {
     this.delete.emit();
   }
 
-  public get wrapperStyles(): object {
-    return {
-      width: `${this.width + this.dw}px`,
-      height: `${this.height + this.dh}px`,
-      transform: `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`,
-    };
-  }
-
-  public get operatorClasses(): object {
-    return {
-      'cursor-grabbing': this.operation === 'move',
-      [this.operation]: !!this.operation,
-    };
-  }
-
   public ngOnInit(): void {}
-
-  public ngOnChanges(): void {}
-
-  public ngDoCheck(): void {}
 
   public ngAfterViewInit(): void {
     this.render();
+
+    this._changeDetectionRef.detectChanges();
   }
 }

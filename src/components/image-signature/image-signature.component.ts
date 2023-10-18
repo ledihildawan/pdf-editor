@@ -55,10 +55,12 @@ export class ImageSignature
 
     // const ratio = Math.min(limit / this.width, limit / this.height);
 
-    this.update.emit({
-      width: this.width * scale,
-      height: this.height * scale,
-    });
+    setTimeout(() => {
+      this.update.emit({
+        width: this.width * scale,
+        height: this.height * scale,
+      });
+    }, 0);
   }
 
   public handlePanMove(event: any): void {
