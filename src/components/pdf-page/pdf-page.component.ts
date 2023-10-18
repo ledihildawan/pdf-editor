@@ -41,7 +41,9 @@ export class PDFPage implements OnInit, AfterViewInit, OnDestroy {
 
     await _page.render({ canvasContext, viewport }).promise;
 
-    this.renderer.listen(window, 'resize', () => this.onMeasure());
+    this.listenerOnResize = this.renderer.listen(window, 'resize', () =>
+      this.onMeasure()
+    );
   }
 
   public onMeasure(): void {
