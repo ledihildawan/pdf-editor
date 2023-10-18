@@ -2,7 +2,10 @@
   <div
     appPannable
     class="absolute w-full h-full cursor-grab"
-    [ngClass]="operatorClasses"
+    [ngClass]="{
+      'cursor-grabbing': operation === 'move',
+      operation: !!operation,
+    }"
     (panend)="handlePanEnd()"
     (panmove)="handlePanMove($event)"
     (panstart)="handlePanStart($event)"
