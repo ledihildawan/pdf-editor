@@ -1,3 +1,4 @@
+import { WrapperStyles } from 'src/interfaces';
 import {
   AfterViewInit,
   Component,
@@ -11,7 +12,6 @@ import {
 
 @Component({
   selector: 'drawing',
-  styleUrls: ['./drawing.component.scss'],
   templateUrl: './drawing.component.html',
 })
 export class Drawing implements OnInit, AfterViewInit {
@@ -30,17 +30,24 @@ export class Drawing implements OnInit, AfterViewInit {
   @ViewChild('drawingSVG') svg!: ElementRef<SVGElement>;
 
   public ratio!: number;
+  public startX!: number;
+  public startY!: number;
 
-  public startX: any;
-  public startY: any;
+  public dx: number = 0;
+  public dy: number = 0;
+  public dw: number = 0;
+  public direction: string = '';
+  public operation: string = '';
 
-  public dx = 0;
-  public dy = 0;
-  public dw = 0;
-  public direction = '';
-  public operation = '';
+  public get wrapperStyles(): WrapperStyles {
+    return {
+      width: `${this.width + this.dw}px`,
+      height: `${(this.width + this.dw) / this.ratio}px`,
+      transform: `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`,
+    };
+  }
 
-  public render() {
+  public render(): void {
     this.svg.nativeElement.setAttribute(
       'viewBox',
       `0 0 ${this.originWidth} ${this.originHeight}`
@@ -63,8 +70,6 @@ export class Drawing implements OnInit, AfterViewInit {
         this.dx = d;
         this.dw = -d;
         this.dy = d / this.ratio;
-
-        console.log(d);
       }
 
       if (this.direction === 'right-bottom') {
@@ -117,21 +122,6 @@ export class Drawing implements OnInit, AfterViewInit {
 
   public onDelete(): void {
     this.delete.emit();
-  }
-
-  public get operatorClasses(): object {
-    return {
-      'cursor-grabbing': this.operation === 'move',
-      [this.operation]: !!this.operation,
-    };
-  }
-
-  public get wrapperStyles(): object {
-    return {
-      width: `${this.width + this.dw}px`,
-      height: `${(this.width + this.dw) / this.ratio}px`,
-      transform: `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`,
-    };
   }
 
   public ngOnInit(): void {

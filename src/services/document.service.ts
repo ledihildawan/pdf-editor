@@ -13,16 +13,27 @@ export interface GetBatchIdResponse {
 export class DocumentService {
   private _batchId: string = '';
 
-  private headers: any = {
+  private _headers: any = {
     Authorization: `Basic ${btoa('Administrator:Administrator')}`,
   };
-  private endpointURL: string = 'http://192.168.1.10:8080/nuxeo';
+  private _endpointURL: string = 'http://192.168.1.34:8080/nuxeo';
 
   constructor(private httpClient: HttpClient) {}
 
+  public getDocumentFile(): Observable<any> {
+    return this.httpClient.get(
+      // `${this._endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
+      `http://localhost:4200/assets/documents/sample.pdf`,
+      {
+        headers: this._headers,
+        responseType: 'blob',
+      }
+    );
+  }
+
   public getBatchId(): Observable<string> {
-    const url = `${this.endpointURL}/site/api/v1/upload`;
-    const options = { headers: this.headers };
+    const url = `${this._endpointURL}/site/api/v1/upload`;
+    const options = { headers: this._headers };
 
     return this.httpClient
       .post<GetBatchIdResponse>(url, undefined, options)
@@ -32,26 +43,22 @@ export class DocumentService {
   public uploadDocumentFile(batchId: string, data: any): Observable<any> | any {
     this._batchId = batchId;
 
-    const url = `${this.endpointURL}/site/api/v1/upload/${batchId}/0`;
-    const options: any = {
+    const url = `${this._endpointURL}/site/api/v1/upload/${batchId}/0`;
+    const init: any = {
+      method: 'POST',
       headers: {
-        ...this.headers,
+        ...this._headers,
         'Content-Type': 'application/octet-stream',
         Accept: 'application/octet-stream',
       },
+      body: data,
     };
 
-    return from(
-      fetch(url, {
-        method: 'POST',
-        headers: this.headers,
-        body: data,
-      })
-    );
+    return from(fetch(url, init));
   }
 
-  public updateDocumentInfo(batchId: any) {
-    const url = `${this.endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d`;
+  public updateDocumentInfo() {
+    const url = `${this._endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d`;
     const data = {
       'entity-type': 'document',
       repository: 'default',
@@ -62,7 +69,7 @@ export class DocumentService {
         },
       },
     };
-    const options = { headers: this.headers };
+    const options = { headers: this._headers };
 
     return this.httpClient.put<GetBatchIdResponse>(url, data, options);
   }
@@ -71,7 +78,7 @@ export class DocumentService {
     return this.getBatchId().pipe(
       switchMap((batchId: string) =>
         this.uploadDocumentFile(batchId, data).pipe(
-          switchMap((batchId) => this.updateDocumentInfo(batchId))
+          switchMap(() => this.updateDocumentInfo())
         )
       )
     );

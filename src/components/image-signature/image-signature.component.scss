@@ -1,4 +1,8 @@
 :host {
+  .operation {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
   .resize-border {
     @apply absolute border-dashed border-gray-600;
   }

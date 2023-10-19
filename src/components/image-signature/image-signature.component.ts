@@ -1,38 +1,37 @@
-import { WrapperStyles } from 'src/interfaces';
 import {
   Input,
-  OnInit,
   Output,
   ViewChild,
   Component,
   ElementRef,
   EventEmitter,
+  OnInit,
   AfterViewInit,
+  OnChanges,
+  DoCheck,
 } from '@angular/core';
 
 @Component({
-  selector: 'image',
-  styleUrls: ['./image.component.scss'],
-  templateUrl: './image.component.html',
+  selector: 'image-signature',
+  styleUrls: ['./image-signature.component.scss'],
+  templateUrl: './image-signature.component.html',
 })
-export class Image implements OnInit, AfterViewInit {
-  @Input() x!: number;
-  @Input() y!: number;
-  @Input() width!: number;
-  @Input() height!: number;
-
+export class ImageSignature
+  implements OnInit, OnChanges, AfterViewInit, DoCheck
+{
+  @Input() x: any;
+  @Input() y: any;
   @Input() file: any;
+  @Input() width: any;
+  @Input() height: any;
   @Input() payload: any;
-
-  @Input() pageScale: number = 1;
+  @Input() pageScale = 1;
 
   @Output() delete: EventEmitter<any> = new EventEmitter<any>();
   @Output() update: EventEmitter<object> = new EventEmitter<object>();
 
-  @ViewChild('imageCanvas') canvas!: ElementRef<HTMLCanvasElement>;
-
-  public startX!: number;
-  public startY!: number;
+  public startX: any;
+  public startY: any;
 
   public dh: number = 0;
   public dw: number = 0;
@@ -41,29 +40,27 @@ export class Image implements OnInit, AfterViewInit {
   public operation: string = '';
   public directions: any[] = [];
 
-  public get wrapperStyles(): WrapperStyles {
-    return {
-      width: `${this.width + this.dw}px`,
-      height: `${this.height + this.dh}px`,
-      transform: `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`,
-    };
-  }
-
   public render(): void {
-    const ctx = this.canvas.nativeElement;
+    const limit = 200;
 
-    ctx.width = this.width;
-    ctx.height = this.height;
+    let scale = 1;
 
-    ctx
-      .getContext('2d')
-      ?.drawImage(this.payload, 0, 0, this.width, this.height);
-
-    if (!['image/png'].includes(this.file.type)) {
-      ctx.toBlob((blob) => {
-        this.update.emit({ file: blob });
-      });
+    if (this.width > limit) {
+      scale = limit / this.width;
     }
+
+    if (this.height > limit) {
+      scale = Math.min(scale, limit / this.height);
+    }
+
+    // const ratio = Math.min(limit / this.width, limit / this.height);
+
+    setTimeout(() => {
+      this.update.emit({
+        width: this.width * scale,
+        height: this.height * scale,
+      });
+    }, 0);
   }
 
   public handlePanMove(event: any): void {
@@ -137,7 +134,26 @@ export class Image implements OnInit, AfterViewInit {
     this.delete.emit();
   }
 
+  public get wrapperStyles(): object {
+    return {
+      width: `${this.width + this.dw}px`,
+      height: `${this.height + this.dh}px`,
+      transform: `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`,
+    };
+  }
+
+  public get operatorClasses(): object {
+    return {
+      'cursor-grabbing': this.operation === 'move',
+      [this.operation]: !!this.operation,
+    };
+  }
+
   public ngOnInit(): void {}
+
+  public ngOnChanges(): void {}
+
+  public ngDoCheck(): void {}
 
   public ngAfterViewInit(): void {
     this.render();

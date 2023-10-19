@@ -9,7 +9,7 @@ export function readAsArrayBuffer(file: any): Promise<any> {
   });
 }
 
-export function readAsImage(src: any) {
+export function readAsImage(src: any): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
 
@@ -26,7 +26,7 @@ export function readAsImage(src: any) {
   });
 }
 
-export function readAsDataURL(file: any) {
+export function readAsDataURL(file: any): Promise<any> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
