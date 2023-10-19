@@ -1,22 +1,19 @@
 import { WrapperStyles } from 'src/interfaces';
 import {
   Input,
+  OnInit,
   Output,
   ViewChild,
   Component,
   ElementRef,
   EventEmitter,
-  OnInit,
   AfterViewInit,
-  ChangeDetectorRef,
-  ChangeDetectionStrategy,
 } from '@angular/core';
 
 @Component({
   selector: 'image',
   styleUrls: ['./image.component.scss'],
   templateUrl: './image.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Image implements OnInit, AfterViewInit {
   @Input() x!: number;
@@ -52,36 +49,18 @@ export class Image implements OnInit, AfterViewInit {
     };
   }
 
-  constructor(private _changeDetectionRef: ChangeDetectorRef) {}
-
   public render(): void {
-    const limit = 500;
+    const ctx = this.canvas.nativeElement;
 
-    let scale = 1;
+    ctx.width = this.width;
+    ctx.height = this.height;
 
-    this.canvas.nativeElement.width = this.width;
-    this.canvas.nativeElement.height = this.height;
-
-    this.canvas.nativeElement.getContext('2d')?.drawImage(this.payload, 0, 0);
-
-    if (this.width > limit) {
-      scale = limit / this.width;
-    }
-
-    if (this.height > limit) {
-      scale = Math.min(scale, limit / this.height);
-    }
-
-    this.width = this.width * scale;
-    this.height = this.height * scale;
-
-    // this.update.emit({
-    //   width: this.width * scale,
-    //   height: this.height * scale,
-    // });
+    ctx
+      .getContext('2d')
+      ?.drawImage(this.payload, 0, 0, this.width, this.height);
 
     if (!['image/png'].includes(this.file.type)) {
-      this.canvas.nativeElement.toBlob((blob) => {
+      ctx.toBlob((blob) => {
         this.update.emit({ file: blob });
       });
     }
@@ -117,26 +96,20 @@ export class Image implements OnInit, AfterViewInit {
 
   public handlePanEnd(): void {
     if (this.operation === 'move') {
-      // this.update.emit({
-      //   x: this.x + this.dx,
-      //   y: this.y + this.dy,
-      // });
-      this.x = this.x + this.dx;
-      this.y = this.y + this.dy;
+      this.update.emit({
+        x: this.x + this.dx,
+        y: this.y + this.dy,
+      });
 
       this.dx = 0;
       this.dy = 0;
     } else if (this.operation === 'scale') {
-      // this.update.emit({
-      //   x: this.x + this.dx,
-      //   y: this.y + this.dy,
-      //   width: this.width + this.dw,
-      //   height: this.height + this.dh,
-      // });
-      this.x = this.x + this.dx;
-      this.y = this.y + this.dy;
-      this.width = this.width + this.dw;
-      this.height = this.height + this.dh;
+      this.update.emit({
+        x: this.x + this.dx,
+        y: this.y + this.dy,
+        width: this.width + this.dw,
+        height: this.height + this.dh,
+      });
 
       this.dx = 0;
       this.dy = 0;
@@ -168,7 +141,5 @@ export class Image implements OnInit, AfterViewInit {
 
   public ngAfterViewInit(): void {
     this.render();
-
-    this._changeDetectionRef.detectChanges();
   }
 }

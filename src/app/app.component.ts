@@ -1,25 +1,19 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
-import {
-  readAsDataURL,
-  readAsImage,
-  readAsPDF,
-} from 'src/utils/async-reader.util';
-import { ggID } from 'src/utils/helper.util';
-import { save } from 'src/utils/pdf.util';
-import { ajax } from 'rxjs/ajax';
 import { DocumentService } from 'src/services/document.service';
-
-const endpointURL = 'http://192.168.1.10:8080/nuxeo';
-const headerOptions = {
-  Authorization: `Basic ${btoa('Administrator:Administrator')}`,
-};
+import { Component, OnDestroy, OnInit, Renderer2 } from '@angular/core';
+import { save } from 'src/utils/pdf.util';
+import { ggID, scaleImage } from 'src/utils/helper.util';
+import {
+  readAsPDF,
+  readAsImage,
+  readAsDataURL,
+} from 'src/utils/async-reader.util';
 
 @Component({
   selector: 'app-root',
   styleUrls: ['./app.component.scss'],
   templateUrl: './app.component.html',
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   private genID = ggID();
 
   public pdfFile!: any;
@@ -33,6 +27,11 @@ export class AppComponent implements OnInit {
   public selectedPageIndex = -1;
   public saving = false;
   public addingDrawing = false;
+  public listeners: any = {
+    onDrop: () => {},
+    onDragover: () => {},
+    onDragenter: () => {},
+  };
 
   constructor(
     private documentService: DocumentService,
@@ -60,10 +59,10 @@ export class AppComponent implements OnInit {
   public async addImage(file: any): Promise<any> {
     try {
       const id: number = this.genID();
-      const url: any = await readAsDataURL(file);
-      const img: any = await readAsImage(url);
+      const url: string = await readAsDataURL(file);
+      const img: HTMLImageElement = await readAsImage(url);
 
-      const { width, height } = img;
+      const { width, height } = scaleImage(img.width, img.height);
 
       const objectOptions = {
         id,
@@ -111,7 +110,6 @@ export class AppComponent implements OnInit {
   }
 
   public onMeasure(scale: any, idx: number) {
-    console.log(scale);
     this.pagesScale[idx] = scale;
   }
 
@@ -212,31 +210,28 @@ export class AppComponent implements OnInit {
       this.selectedPageIndex = 0;
     });
 
-    this.renderer.listen(window, 'dragenter', (event) => {
-      event.preventDefault();
-    });
-    this.renderer.listen(window, 'dragover', (event) => {
-      event.preventDefault();
-    });
-    this.renderer.listen(window, 'drop', (event) => {
+    this.listeners.onDragenter = this.renderer.listen(
+      window,
+      'dragenter',
+      (event) => {
+        event.preventDefault();
+      }
+    );
+    this.listeners.onDragover = this.renderer.listen(
+      window,
+      'dragover',
+      (event) => {
+        event.preventDefault();
+      }
+    );
+    this.listeners.onDrop = this.renderer.listen(window, 'drop', (event) => {
       this.onUploadPDF(event);
     });
   }
 
-  public showImageSignature: boolean = true;
-
-  public imageSignature: any = {
-    height: 600,
-    width: 600,
-  };
-
-  public onUpdateImageSignature(event: any): void {
-    const test = Array.from(new Set(Object.values(event)))[0];
-
-    if (!!test) return;
-
-    this.imageSignature = {
-      ...event,
-    };
+  public ngOnDestroy(): void {
+    for (const listener in this.listeners) {
+      this.listeners[listener]();
+    }
   }
 }

@@ -22,7 +22,8 @@ export class DocumentService {
 
   public getDocumentFile(): Observable<any> {
     return this.httpClient.get(
-      `${this._endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
+      // `${this._endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
+      `http://localhost:4200/assets/documents/sample.pdf`,
       {
         headers: this._headers,
         responseType: 'blob',
@@ -43,21 +44,17 @@ export class DocumentService {
     this._batchId = batchId;
 
     const url = `${this._endpointURL}/site/api/v1/upload/${batchId}/0`;
-    const options: any = {
+    const init: any = {
+      method: 'POST',
       headers: {
         ...this._headers,
         'Content-Type': 'application/octet-stream',
         Accept: 'application/octet-stream',
       },
+      body: data,
     };
 
-    return from(
-      fetch(url, {
-        method: 'POST',
-        headers: this._headers,
-        body: data,
-      })
-    );
+    return from(fetch(url, init));
   }
 
   public updateDocumentInfo() {
