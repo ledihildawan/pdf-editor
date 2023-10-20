@@ -85,7 +85,38 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  public deleteObject(objectId: number) {
+  public addTextField(text = 'New Text Field') {
+    const id = this.genID();
+    const object = {
+      id,
+      text,
+      type: 'text',
+      size: 16,
+      width: 0,
+      lineHeight: 1.4,
+      fontFamily: 'Arial',
+      x: 0,
+      y: 0,
+    };
+
+    this.allObjects = this.allObjects.map((objects, pIndex) =>
+      pIndex === this.selectedPageIndex ? [...objects, object] : objects
+    );
+  }
+
+  public addDrawing(): void {
+    if (this.selectedPageIndex >= 0) {
+      this.addingDrawing = true;
+    }
+  }
+
+  public onAddTextField(): void {
+    if (this.selectedPageIndex >= 0) {
+      this.addTextField();
+    }
+  }
+
+  public deleteObject(objectId: number): void {
     this.allObjects = this.allObjects.map((objects, pIndex) =>
       pIndex == this.selectedPageIndex
         ? objects.filter((object: any) => object.id !== objectId)
@@ -101,12 +132,6 @@ export class AppComponent implements OnInit, OnDestroy {
           )
         : objects
     );
-  }
-
-  public addDrawing(): void {
-    if (this.selectedPageIndex >= 0) {
-      this.addingDrawing = true;
-    }
   }
 
   public onMeasure(scale: any, idx: number) {

@@ -45,6 +45,7 @@
           'bg-gray-500': selectedPageIndex < 0,
           'cursor-not-allowed': selectedPageIndex < 0
         }"
+        (click)="onAddTextField()"
       >
         <img alt="An icon for adding text" src="assets/icons/notes.svg" />
       </label>
@@ -177,11 +178,3 @@
     </div>
   </ng-container>
 </main>
-
-<!-- <image-signature
-  *ngIf="showImageSignature"
-  [width]="imageSignature.width"
-  [height]="imageSignature.height"
-  (update)="onUpdateImageSignature($event)"
-  (delete)="showImageSignature = false"
-></image-signature> -->
