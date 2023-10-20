@@ -1,13 +1,13 @@
 import { WrapperStyles } from 'src/interfaces';
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
   Input,
   OnInit,
   Output,
+  Component,
   ViewChild,
+  ElementRef,
+  EventEmitter,
+  AfterViewInit,
 } from '@angular/core';
 
 @Component({

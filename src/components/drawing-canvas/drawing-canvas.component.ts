@@ -1,9 +1,9 @@
 import {
+  Output,
   Component,
+  ViewChild,
   ElementRef,
   EventEmitter,
-  Output,
-  ViewChild,
 } from '@angular/core';
 
 @Component({

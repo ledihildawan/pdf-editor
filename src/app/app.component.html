@@ -153,6 +153,9 @@
                 [file]="object.file"
                 [width]="object.width"
                 [height]="object.height"
+                [file]="object.file"
+                [width]="object.width"
+                [height]="object.height"
                 [payload]="object.payload"
                 [pageScale]="pagesScale[pIndex]"
                 (delete)="deleteObject(object.id)"
@@ -177,11 +180,3 @@
     </div>
   </ng-container>
 </main>
-
-<!-- <image-signature
-  *ngIf="showImageSignature"
-  [width]="imageSignature.width"
-  [height]="imageSignature.height"
-  (update)="onUpdateImageSignature($event)"
-  (delete)="showImageSignature = false"
-></image-signature> -->
