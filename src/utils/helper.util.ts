@@ -6,7 +6,7 @@ export function ggID(): () => any {
   };
 }
 
-export function timeout(ms: number): Promise<any> {
+export function timeout(ms?: number): Promise<any> {
   return new Promise((res) => setTimeout(res, ms));
 }
 

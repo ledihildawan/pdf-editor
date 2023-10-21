@@ -1,15 +1,24 @@
 import { noop } from './helper.util';
-import { readAsArrayBuffer } from './async-reader.util';
+import {
+  PDFDocument,
+  LineCapStyle,
+  LineJoinStyle,
+  setLineCap,
+  setLineJoin,
+  popGraphicsState,
+  pushGraphicsState,
+} from 'pdf-lib';
+import { readAsArrayBuffer } from './reader.util';
+
+import * as download from 'downloadjs';
 
 export async function save(pdfFile: any, objects: any, name: any) {
-  const PDFLib: any = (window as any).PDFLib;
-  const download: any = (window as any).download;
   const makeTextPDF: any = (window as any).makeTextPDF;
 
   let pdfDoc: any = null;
 
   try {
-    pdfDoc = await PDFLib.PDFDocument.load(await readAsArrayBuffer(pdfFile));
+    pdfDoc = await PDFDocument.load(await readAsArrayBuffer(pdfFile));
   } catch (e) {
     console.log('Failed to load PDF.');
     throw e;
@@ -44,37 +53,29 @@ export async function save(pdfFile: any, objects: any, name: any) {
               return noop;
             }
           } else if (object.type === 'text') {
-            // let { x, y, lines, lineHeight, size, fontFamily, width } = object;
-            // const height = size * lineHeight * lines.length;
-            // const font = await fetchFont(fontFamily);
-            // const [textPage] = await pdfDoc.embedPdf(
-            //   await makeTextPDF({
-            //     lines,
-            //     fontSize: size,
-            //     lineHeight,
-            //     width,
-            //     height,
-            //     font: font.buffer || fontFamily, // built-in font family
-            //     dy: font.correction(size, lineHeight),
-            //   })
-            // );
-            // return () =>
-            //   page.drawPage(textPage, {
-            //     width,
-            //     height,
-            //     x,
-            //     y: pageHeight - y - height,
-            //   });
+            let { x, y, lines, lineHeight, size, fontFamily, width } = object;
+            debugger;
+            const height = size * lineHeight * lines.length;
+            const [textPage] = await pdfDoc.embedPdf(
+              await makeTextPDF({
+                lines,
+                fontSize: size,
+                lineHeight,
+                width,
+                height,
+                font: fontFamily,
+              })
+            );
+            return () =>
+              page.drawPage(textPage, {
+                width,
+                height,
+                x,
+                y: pageHeight - y - height,
+              });
           } else if (object.type === 'drawing') {
             let { x, y, path, scale } = object;
-            const {
-              pushGraphicsState,
-              setLineCap,
-              popGraphicsState,
-              setLineJoin,
-              LineCapStyle,
-              LineJoinStyle,
-            } = PDFLib;
+
             return () => {
               page.pushOperators(
                 pushGraphicsState(),
