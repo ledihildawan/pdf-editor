@@ -28,15 +28,16 @@
             "inlineStyleLanguage": "scss",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles.scss"],
-            "scripts": ["src/assets/libs/makeTextPDF.js"]
+            "scripts": ["src/assets/libs/makeTextPDF.js"],
+            "allowedCommonJsDependencies": ["pako", "pdfjs-dist", "downloadjs"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
