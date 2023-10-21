@@ -23,7 +23,7 @@ export class DocumentService {
   public getDocumentFile(): Observable<any> {
     return this.httpClient.get(
       // `${this._endpointURL}/api/v1/id/c77a9e52-789a-4a55-9fc7-d2527ac7598d/@blob/file:content`,
-      `http://localhost:4200/assets/documents/sample.pdf`,
+      `${window.origin}/assets/documents/sample.pdf`,
       {
         headers: this._headers,
         responseType: 'blob',
