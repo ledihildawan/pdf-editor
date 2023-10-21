@@ -1,5 +1,5 @@
 {
-  "name": "ttd-angular",
+  "name": "pdf-editor",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -10,7 +10,6 @@
   },
   "private": true,
   "dependencies": {
-    "@almothafar/angular-signature-pad": "^5.0.1",
     "@angular/animations": "^16.2.0",
     "@angular/common": "^16.2.0",
     "@angular/compiler": "^16.2.0",
