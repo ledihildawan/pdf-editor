@@ -2,11 +2,7 @@ import { DocumentService } from 'src/services/document.service';
 import { Component, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { save } from 'src/utils/pdf.util';
 import { ggID, scaleImage } from 'src/utils/helper.util';
-import {
-  readAsPDF,
-  readAsImage,
-  readAsDataURL,
-} from 'src/utils/async-reader.util';
+import { readAsPDF, readAsImage, readAsDataURL } from 'src/utils/reader.util';
 
 @Component({
   selector: 'app-root',
@@ -85,7 +81,42 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  public deleteObject(objectId: number) {
+  public addTextField(text = 'New Text Field') {
+    const id = this.genID();
+    const object = {
+      id,
+      text,
+      type: 'text',
+      size: 16,
+      width: 0,
+      lineHeight: 1.4,
+      fontFamily: this.currentFont,
+      x: 0,
+      y: 0,
+    };
+
+    this.allObjects = this.allObjects.map((objects, pIndex) =>
+      pIndex === this.selectedPageIndex ? [...objects, object] : objects
+    );
+  }
+
+  public addDrawing(): void {
+    if (this.selectedPageIndex >= 0) {
+      this.addingDrawing = true;
+    }
+  }
+
+  public selectFontFamily(event: any) {
+    this.currentFont = event.name;
+  }
+
+  public onAddTextField(): void {
+    if (this.selectedPageIndex >= 0) {
+      this.addTextField();
+    }
+  }
+
+  public deleteObject(objectId: number): void {
     this.allObjects = this.allObjects.map((objects, pIndex) =>
       pIndex == this.selectedPageIndex
         ? objects.filter((object: any) => object.id !== objectId)
@@ -94,6 +125,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public updateObject(objectId: number, payload: any): void {
+    console.log(payload);
     this.allObjects = this.allObjects.map((objects, pIndex) =>
       pIndex == this.selectedPageIndex
         ? objects.map((object: any) =>
@@ -101,12 +133,6 @@ export class AppComponent implements OnInit, OnDestroy {
           )
         : objects
     );
-  }
-
-  public addDrawing(): void {
-    if (this.selectedPageIndex >= 0) {
-      this.addingDrawing = true;
-    }
   }
 
   public onMeasure(scale: any, idx: number) {

@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "ttd-angular": {
+    "pdf-editor": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/ttd-angular",
+            "outputPath": "dist/pdf-editor",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": ["zone.js"],
@@ -28,7 +28,7 @@
             "inlineStyleLanguage": "scss",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles.scss"],
-            "scripts": []
+            "scripts": ["src/assets/libs/makeTextPDF.js"]
           },
           "configurations": {
             "production": {
@@ -61,10 +61,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "ttd-angular:build:production"
+              "browserTarget": "pdf-editor:build:production"
             },
             "development": {
-              "browserTarget": "ttd-angular:build:development"
+              "browserTarget": "pdf-editor:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -72,7 +72,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ttd-angular:build"
+            "browserTarget": "pdf-editor:build"
           }
         },
         "test": {

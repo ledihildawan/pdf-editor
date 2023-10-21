@@ -1,14 +1,14 @@
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
   Input,
-  OnDestroy,
   OnInit,
   Output,
-  ViewChild,
+  Component,
+  OnDestroy,
   Renderer2,
+  ViewChild,
+  ElementRef,
+  EventEmitter,
+  AfterViewInit,
 } from '@angular/core';
 
 @Component({

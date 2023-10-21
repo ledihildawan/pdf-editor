@@ -1,18 +1,20 @@
 import { NgModule } from '@angular/core';
-import { AppComponent } from './app.component';
-import { BrowserModule } from '@angular/platform-browser';
+import { TextModule } from 'src/components/text/text.module';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { PDFPageModule } from 'src/components/pdf-page/pdf-page.module';
-import { HttpClientModule } from '@angular/common/http';
 import { ImageModule } from 'src/components/image/image.module';
-import { DrawingCanvasModule } from 'src/components/drawing-canvas/drawing-canvas.module';
+import { AppComponent } from './app.component';
+import { CommonModule } from '@angular/common';
+import { BrowserModule } from '@angular/platform-browser';
+import { PDFPageModule } from 'src/components/pdf-page/pdf-page.module';
 import { DrawingModule } from 'src/components/drawing/drawing.module';
-import { ImageSignatureModule } from 'src/components/image-signature/image-signature.module';
+import { HttpClientModule } from '@angular/common/http';
+import { DrawingCanvasModule } from 'src/components/drawing-canvas/drawing-canvas.module';
+import { DirectiveModule } from 'src/directives/directive.module';
 
 @NgModule({
   exports: [],
   imports: [
+    TextModule,
     FormsModule,
     ImageModule,
     CommonModule,
@@ -21,7 +23,7 @@ import { ImageSignatureModule } from 'src/components/image-signature/image-signa
     PDFPageModule,
     HttpClientModule,
     DrawingCanvasModule,
-    ImageSignatureModule,
+    DirectiveModule,
   ],
   bootstrap: [AppComponent],
   providers: [],

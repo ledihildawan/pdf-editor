@@ -1,3 +1,8 @@
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+
+GlobalWorkerOptions.workerSrc =
+  '//unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.js';
+
 export function readAsArrayBuffer(file: any): Promise<any> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -41,5 +46,5 @@ export async function readAsPDF(file: any) {
   const blob = new Blob([file]);
   const url = window.URL.createObjectURL(blob);
 
-  return (window as any).pdfjsLib.getDocument(url).promise;
+  return getDocument(url).promise;
 }

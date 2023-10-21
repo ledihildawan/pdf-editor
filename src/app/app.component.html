@@ -45,6 +45,7 @@
           'bg-gray-500': selectedPageIndex < 0,
           'cursor-not-allowed': selectedPageIndex < 0
         }"
+        (click)="onAddTextField()"
       >
         <img alt="An icon for adding text" src="assets/icons/notes.svg" />
       </label>
@@ -153,11 +154,27 @@
                 [file]="object.file"
                 [width]="object.width"
                 [height]="object.height"
+                [file]="object.file"
+                [width]="object.width"
+                [height]="object.height"
                 [payload]="object.payload"
                 [pageScale]="pagesScale[pIndex]"
                 (delete)="deleteObject(object.id)"
                 (update)="updateObject(object.id, $event)"
               ></image>
+              <text
+                *ngIf="object.type === 'text'"
+                [x]="object.x"
+                [y]="object.y"
+                [text]="object.text"
+                [size]="object.size"
+                [pageScale]="pagesScale[pIndex]"
+                [fontFamily]="object.fontFamily"
+                [lineHeight]="object.lineHeight"
+                (delete)="deleteObject(object.id)"
+                (update)="updateObject(object.id, $event)"
+                (selectFont)="selectFontFamily($event)"
+              ></text>
               <drawing
                 *ngIf="object.type === 'drawing'"
                 [x]="object.x"
@@ -177,11 +194,3 @@
     </div>
   </ng-container>
 </main>
-
-<!-- <image-signature
-  *ngIf="showImageSignature"
-  [width]="imageSignature.width"
-  [height]="imageSignature.height"
-  (update)="onUpdateImageSignature($event)"
-  (delete)="showImageSignature = false"
-></image-signature> -->
