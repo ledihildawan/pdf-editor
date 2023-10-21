@@ -25,7 +25,7 @@ export class Drawing implements OnInit, AfterViewInit {
   @Input() pageScale = 1;
 
   @Output() delete: EventEmitter<any> = new EventEmitter<any>();
-  @Output() update: EventEmitter<object> = new EventEmitter<object>();
+  @Output() update: EventEmitter<Object> = new EventEmitter<Object>();
 
   @ViewChild('drawingSVG') svg!: ElementRef<SVGElement>;
 

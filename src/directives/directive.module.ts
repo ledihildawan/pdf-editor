@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
+import { TapoutDirective } from './tapout.directive';
 import { PannableDirective } from './pannable.directive';
 
 @NgModule({
-  exports: [PannableDirective],
+  exports: [TapoutDirective, PannableDirective],
   imports: [],
-  declarations: [PannableDirective],
+  declarations: [TapoutDirective, PannableDirective],
 })
 export class DirectiveModule {}

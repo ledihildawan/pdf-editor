@@ -2,11 +2,7 @@ import { DocumentService } from 'src/services/document.service';
 import { Component, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { save } from 'src/utils/pdf.util';
 import { ggID, scaleImage } from 'src/utils/helper.util';
-import {
-  readAsPDF,
-  readAsImage,
-  readAsDataURL,
-} from 'src/utils/async-reader.util';
+import { readAsPDF, readAsImage, readAsDataURL } from 'src/utils/reader.util';
 
 @Component({
   selector: 'app-root',
@@ -94,7 +90,7 @@ export class AppComponent implements OnInit, OnDestroy {
       size: 16,
       width: 0,
       lineHeight: 1.4,
-      fontFamily: 'Arial',
+      fontFamily: this.currentFont,
       x: 0,
       y: 0,
     };
@@ -108,6 +104,10 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.selectedPageIndex >= 0) {
       this.addingDrawing = true;
     }
+  }
+
+  public selectFontFamily(event: any) {
+    this.currentFont = event.name;
   }
 
   public onAddTextField(): void {
@@ -125,6 +125,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public updateObject(objectId: number, payload: any): void {
+    console.log(payload);
     this.allObjects = this.allObjects.map((objects, pIndex) =>
       pIndex == this.selectedPageIndex
         ? objects.map((object: any) =>

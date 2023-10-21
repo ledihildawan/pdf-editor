@@ -1,0 +1,7 @@
+.editing {
+  @apply pointer-events-none border-gray-800 border-dashed;
+}
+
+.font-family {
+  @apply block appearance-none h-6 w-full bg-white pl-2 pr-8 rounded-sm leading-tight;
+}

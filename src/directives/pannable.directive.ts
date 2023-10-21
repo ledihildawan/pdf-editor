@@ -1,12 +1,12 @@
 import {
+  OnInit,
   Output,
   Directive,
+  OnDestroy,
   Renderer2,
   ElementRef,
   EventEmitter,
   HostListener,
-  OnInit,
-  OnDestroy,
 } from '@angular/core';
 
 @Directive({
@@ -24,7 +24,7 @@ export class PannableDirective implements OnInit, OnDestroy {
   @Output() panmove: EventEmitter<any> = new EventEmitter<any>();
   @Output() panstart: EventEmitter<any> = new EventEmitter<any>();
 
-  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+  constructor(private _elementRef: ElementRef, private _renderer: Renderer2) {}
 
   @HostListener('mousedown', ['$event'])
   public onMousedown(event: MouseEvent): void {
@@ -38,10 +38,10 @@ export class PannableDirective implements OnInit, OnDestroy {
       currentTarget: event.currentTarget,
     });
 
-    this.listnereOnMouseup = this.renderer.listen(window, 'mouseup', (event) =>
+    this.listnereOnMouseup = this._renderer.listen(window, 'mouseup', (event) =>
       this.onMouseup(event)
     );
-    this.listnerOnMousemove = this.renderer.listen(
+    this.listnerOnMousemove = this._renderer.listen(
       window,
       'mousemove',
       (event) => this.onMousemove(event)
@@ -77,8 +77,8 @@ export class PannableDirective implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    this.listenerOnMousedown = this.renderer.listen(
-      this.elementRef.nativeElement,
+    this.listenerOnMousedown = this._renderer.listen(
+      this._elementRef.nativeElement,
       'mousedown',
       (event) => this.onMousedown(event)
     );

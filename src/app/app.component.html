@@ -162,6 +162,19 @@
                 (delete)="deleteObject(object.id)"
                 (update)="updateObject(object.id, $event)"
               ></image>
+              <text
+                *ngIf="object.type === 'text'"
+                [x]="object.x"
+                [y]="object.y"
+                [text]="object.text"
+                [size]="object.size"
+                [pageScale]="pagesScale[pIndex]"
+                [fontFamily]="object.fontFamily"
+                [lineHeight]="object.lineHeight"
+                (delete)="deleteObject(object.id)"
+                (update)="updateObject(object.id, $event)"
+                (selectFont)="selectFontFamily($event)"
+              ></text>
               <drawing
                 *ngIf="object.type === 'drawing'"
                 [x]="object.x"
