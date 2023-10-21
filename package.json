@@ -19,7 +19,10 @@
     "@angular/platform-browser": "^16.2.0",
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
+    "downloadjs": "^1.4.7",
     "jspdf": "^2.5.1",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^3.11.174",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"
@@ -28,6 +31,7 @@
     "@angular-devkit/build-angular": "^16.2.6",
     "@angular/cli": "^16.2.6",
     "@angular/compiler-cli": "^16.2.0",
+    "@types/downloadjs": "^1.4.5",
     "@types/jasmine": "~4.3.0",
     "autoprefixer": "^10.4.16",
     "jasmine-core": "~4.6.0",
