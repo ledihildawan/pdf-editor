@@ -62224,6 +62224,10 @@ var TextMixin = {
     this.transform(1, 0, 0, -1, 0, this.page.height);
     y = this.page.height - y - dy; // add current font to page if necessary
 
+    if (isNaN) {
+      y = this.page.height - dy
+    }
+
     if (this.page.fonts[this._font.id] == null) {
       this.page.fonts[this._font.id] = this._font.ref();
     } // begin the text object

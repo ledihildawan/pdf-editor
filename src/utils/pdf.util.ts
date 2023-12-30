@@ -41,6 +41,7 @@ export async function save(pdfFile: any, objects: any, name: any) {
               } else {
                 img = await pdfDoc.embedPng(await readAsArrayBuffer(file));
               }
+
               return () =>
                 page.drawImage(img, {
                   x,
@@ -50,12 +51,14 @@ export async function save(pdfFile: any, objects: any, name: any) {
                 });
             } catch (e) {
               console.log('Failed to embed image.', e);
+
               return noop;
             }
           } else if (object.type === 'text') {
             let { x, y, lines, lineHeight, size, fontFamily, width } = object;
-            debugger;
+
             const height = size * lineHeight * lines.length;
+
             const [textPage] = await pdfDoc.embedPdf(
               await makeTextPDF({
                 lines,
@@ -66,6 +69,7 @@ export async function save(pdfFile: any, objects: any, name: any) {
                 font: fontFamily,
               })
             );
+
             return () =>
               page.drawPage(textPage, {
                 width,
@@ -95,6 +99,7 @@ export async function save(pdfFile: any, objects: any, name: any) {
       );
 
       const drawProcesses = await Promise.all(embedProcesses);
+
       drawProcesses.forEach((p) => p());
     });
 

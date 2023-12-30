@@ -48,6 +48,7 @@ export class PannableDirective implements OnInit, OnDestroy {
     );
   }
 
+  @HostListener('mousemove', ['$event'])
   public onMousemove(event: MouseEvent): void {
     const dx = event.clientX - this.x;
     const dy = event.clientY - this.y;
@@ -63,6 +64,7 @@ export class PannableDirective implements OnInit, OnDestroy {
     });
   }
 
+  @HostListener('mouseup', ['$event'])
   public onMouseup(event: MouseEvent): void {
     this.x = event.clientX;
     this.y = event.clientY;

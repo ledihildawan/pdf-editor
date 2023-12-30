@@ -1,10 +1,18 @@
-<div class="absolute left-0 top-0 select-none" [ngStyle]="wrapperStyles">
+<div
+  class="absolute left-0 top-0 select-none"
+  [ngStyle]="{
+    width: width + dw + 'px',
+    height: (width + dw) / ratio + 'px',
+    transform: getTransformStyleWrapper()
+  }"
+>
   <div
     appPannable
     class="absolute w-full h-full cursor-grab border border-gray-400 border-dashed"
     [ngClass]="{
+      'move': operation === 'move',
+      'scale': operation === 'scale',
       'cursor-grabbing': operation === 'move',
-      operation: !!operation,
     }"
     (panend)="handlePanEnd()"
     (panmove)="handlePanMove($event)"

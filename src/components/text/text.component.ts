@@ -1,17 +1,17 @@
+import { Fonts } from 'src/utils/font.util';
 import {
   Input,
   OnInit,
   Output,
   Component,
+  Renderer2,
   ViewChild,
   ElementRef,
   EventEmitter,
   AfterViewInit,
-  AfterViewChecked,
   ChangeDetectorRef,
-  Renderer2,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { Fonts } from 'src/utils/font.util';
 import { timeout } from 'src/utils/helper.util';
 
 @Component({
@@ -20,13 +20,24 @@ import { timeout } from 'src/utils/helper.util';
   templateUrl: './text.component.html',
 })
 export class Text implements OnInit, AfterViewInit {
-  @Input() public x!: number;
-  @Input() public y!: number;
-  @Input() public text!: string;
-  @Input() public size!: number;
-  @Input() public pageScale!: number;
-  @Input() public fontFamily!: string;
-  @Input() public lineHeight!: number;
+  @Input()
+  public x!: number;
+  @Input()
+  public y!: number;
+  @Input()
+  public size!: number;
+  @Input()
+  public text!: string;
+  @Input()
+  public lines!: any[];
+  @Input()
+  public width!: number;
+  @Input()
+  public pageScale!: number;
+  @Input()
+  public fontFamily!: string;
+  @Input()
+  public lineHeight!: number;
 
   @Output() public delete: EventEmitter<any> = new EventEmitter<any>();
   @Output() public update: EventEmitter<Object> = new EventEmitter<Object>();
@@ -36,10 +47,6 @@ export class Text implements OnInit, AfterViewInit {
   @ViewChild('toolbar') toolbar!: ElementRef<HTMLElement>;
   @ViewChild('editable') editable!: ElementRef<HTMLElement>;
 
-  public _size!: number;
-  public _lineHeight!: number;
-  public _fontFamily!: string;
-
   public startX!: number;
   public startY!: number;
 
@@ -48,34 +55,18 @@ export class Text implements OnInit, AfterViewInit {
   public families: any = Object.keys(Fonts);
   public operation: any = '';
 
-  public get wrapperStyles(): Object {
-    return {
-      transform: `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`,
-    };
-  }
-
-  public get operationClasses(): Object {
-    return {
-      'cursor-grab': !this.operation,
-      'cursor-grabbing': this.operation === 'move',
-      editing: ['edit', 'tool'].includes(this.operation),
-    };
-  }
-
-  public get editableStyles(): Object {
-    return {
-      'font-size': `${this._size}px`,
-      'font-family': `${this._fontFamily}, serif`,
-      'line-height': `${this._lineHeight}`,
-      '-webkit-user-select': 'text',
-    };
-  }
-
   constructor(
-    private _renderer: Renderer2,
-    private _elementRef: ElementRef,
-    private _changeDetectorRef: ChangeDetectorRef
+    private readonly _renderer: Renderer2,
+    private readonly _changeDetectorRef: ChangeDetectorRef
   ) {}
+
+  public getTransformStyleWrapper(): string {
+    return `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`;
+  }
+
+  public isEditing(operation: string): boolean {
+    return ['edit', 'tool'].includes(operation);
+  }
 
   public handlePanMove(event: any): void {
     this.dx = (event.x - this.startX) / this.pageScale;
@@ -101,39 +92,44 @@ export class Text implements OnInit, AfterViewInit {
     this.startX = event.x;
     this.startY = event.y;
     this.operation = 'move';
+
+    console.log(this.operation);
   }
 
   public onFocus(): void {
     this.operation = 'edit';
   }
 
-  public async onBlur(): Promise<any> {
+  public onBlur(): void {
     if (this.operation !== 'edit' || this.operation === 'tool') {
       return;
     }
 
     this.editable.nativeElement.blur();
+
     this.sanitize();
+
+    this.operation = '';
+
+    this.lines = this.extractLines();
+    this.width = this.editable.nativeElement.clientWidth;
+
     this.update.emit({
       lines: this.extractLines(),
       width: this.editable.nativeElement.clientWidth,
     });
 
-    this.operation = '';
-
     this._renderer.removeChild(document.body, this.toolbar.nativeElement);
   }
 
-  public async onPaste(event: Event): Promise<any> {
+  public onPaste(event: Event): void {
     event.preventDefault();
 
     const pastedText = (event as ClipboardEvent).clipboardData?.getData('text');
 
     document.execCommand('insertHTML', false, pastedText);
 
-    await timeout();
-
-    this.sanitize();
+    timeout().then(() => this.sanitize());
   }
 
   public onKeydown(e: any): void {
@@ -184,16 +180,16 @@ export class Text implements OnInit, AfterViewInit {
     this.operation = 'tool';
   }
 
-  public async onBlurTool(): Promise<void> {
+  public onBlurTool(): void {
     if (this.operation !== 'tool' || this.operation === 'edit') {
       return;
     }
 
     this.update.emit({
-      size: this._size,
+      size: this.size,
       lines: this.extractLines(),
-      fontFamily: this._fontFamily,
-      lineHeight: this._lineHeight,
+      fontFamily: this.fontFamily,
+      lineHeight: this.lineHeight,
     });
 
     this.operation = '';
@@ -212,11 +208,13 @@ export class Text implements OnInit, AfterViewInit {
   }
 
   public onChangeFont(): void {
-    this.selectFont.emit({ name: this._fontFamily });
+    this.selectFont.emit({ name: this.fontFamily });
   }
 
   public render(): void {
-    this.editable.nativeElement.innerHTML = this.text;
+    this.editable.nativeElement.innerHTML = this.text
+      .split('\n')
+      .join('<br />');
 
     this.editable.nativeElement.focus();
 
@@ -247,17 +245,14 @@ export class Text implements OnInit, AfterViewInit {
   }
 
   public onDelete(): void {
-    this._renderer.removeChild(document.body, this.toolbar.nativeElement);
     this.delete.emit();
+
+    this._renderer.removeChild(document.body, this.toolbar.nativeElement);
   }
 
-  public ngOnInit(): void {
-    this._size = this.size;
-    this._fontFamily = this.fontFamily;
-    this._lineHeight = this.lineHeight;
-  }
+  public ngOnInit(): void {}
 
   public ngAfterViewInit(): void {
-    this.render();
+    Promise.resolve().then(() => this.render());
   }
 }

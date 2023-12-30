@@ -86,13 +86,14 @@ export class AppComponent implements OnInit, OnDestroy {
     const object = {
       id,
       text,
-      type: 'text',
+      x: 0,
+      y: 0,
       size: 16,
+      type: 'text',
+      lines: [],
       width: 0,
       lineHeight: 1.4,
       fontFamily: this.currentFont,
-      x: 0,
-      y: 0,
     };
 
     this.allObjects = this.allObjects.map((objects, pIndex) =>
@@ -125,14 +126,19 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public updateObject(objectId: number, payload: any): void {
-    console.log(payload);
-    this.allObjects = this.allObjects.map((objects, pIndex) =>
-      pIndex == this.selectedPageIndex
-        ? objects.map((object: any) =>
-            object.id === objectId ? { ...object, ...payload } : object
-          )
-        : objects
-    );
+    if (payload.lines?.length) {
+      payload.text = payload.lines.join('\n');
+    }
+
+    this.allObjects = this.allObjects.map((objects, pIndex) => {
+      if (pIndex !== this.selectedPageIndex) {
+        return objects;
+      }
+
+      return objects.map((object: any) => {
+        return object.id === objectId ? { ...object, ...payload } : object;
+      });
+    });
   }
 
   public onMeasure(scale: any, idx: number) {
@@ -220,13 +226,6 @@ export class AppComponent implements OnInit, OnDestroy {
     } finally {
       this.saving = false;
     }
-  }
-
-  public getStyleObjects(idx: number): object {
-    return {
-      'touch-action': 'none',
-      transform: `scale(${this.pagesScale[idx]})`,
-    };
   }
 
   public async ngOnInit(): Promise<void> {

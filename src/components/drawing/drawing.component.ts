@@ -1,4 +1,3 @@
-import { WrapperStyles } from 'src/interfaces';
 import {
   Input,
   OnInit,
@@ -39,12 +38,8 @@ export class Drawing implements OnInit, AfterViewInit {
   public direction: string = '';
   public operation: string = '';
 
-  public get wrapperStyles(): WrapperStyles {
-    return {
-      width: `${this.width + this.dw}px`,
-      height: `${(this.width + this.dw) / this.ratio}px`,
-      transform: `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`,
-    };
+  public getTransformStyleWrapper(): string {
+    return `translate(${this.x + this.dx}px, ${this.y + this.dy}px)`;
   }
 
   public render(): void {

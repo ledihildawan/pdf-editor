@@ -10,9 +10,10 @@
       accept="application/pdf"
       (change)="onUploadPDF($event)"
     />
+    <label for="image" class="sr-only">Image</label>
     <input
-      type="file"
       id="image"
+      type="file"
       name="image"
       class="hidden"
       accept="image/png"
@@ -66,7 +67,9 @@
         src="assets/icons/edit.svg"
         class="mr-2"
       />
+      <label for="desktopPdfName" class="sr-only"></label>
       <input
+        id="desktopPdfName"
         type="text"
         placeholder="Rename your PDF here"
         class="flex-grow bg-transparent"
@@ -103,7 +106,9 @@
         src="assets/icons/edit.svg"
         class="mr-2"
       />
+      <label for="pdfName" class="sr-only">PDF Name</label>
       <input
+        id="pdfName"
         type="text"
         class="flex-grow bg-transparent"
         placeholder="Rename your PDF here"
@@ -116,7 +121,9 @@
         src="assets/icons/edit.svg"
         class="mr-2"
       />
+      <label for="mobilePdfName" class="sr-only">PDF Name</label>
       <input
+        id="mobilePdfName"
         type="text"
         placeholder="Rename your PDF here"
         class="flex-grow bg-transparent"
@@ -144,16 +151,16 @@
           ></pdf-page>
           <div
             class="absolute top-0 left-0 transform origin-top-left"
-            [ngStyle]="getStyleObjects(pIndex)"
+            [ngStyle]="{
+              'touch-action': 'none',
+              transform: 'scale(' + pagesScale[pIndex] + ')'
+            }"
           >
             <ng-container *ngFor="let object of allObjects[pIndex]">
               <image
                 *ngIf="object.type === 'image'"
                 [x]="object.x"
                 [y]="object.y"
-                [file]="object.file"
-                [width]="object.width"
-                [height]="object.height"
                 [file]="object.file"
                 [width]="object.width"
                 [height]="object.height"
@@ -168,6 +175,8 @@
                 [y]="object.y"
                 [text]="object.text"
                 [size]="object.size"
+                [width]="object.width"
+                [lines]="object.lines"
                 [pageScale]="pagesScale[pIndex]"
                 [fontFamily]="object.fontFamily"
                 [lineHeight]="object.lineHeight"
